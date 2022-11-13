@@ -1,14 +1,19 @@
 import asyncio
-from typing import NoReturn
 from datetime import datetime
+from typing import NoReturn
 
 import aiofiles
 
 
-async def read_chat(ip: str, port: int) -> NoReturn:
-    """Чтения переписки чата"""
-    
+async def connection_chat(ip: str, port: int):
+    """Установка соединения с чатом"""
     reader, writer = await asyncio.open_connection(ip, port)
+    return (reader, writer)
+
+
+async def read_chat(reader) -> NoReturn:
+    """Чтения переписки чата"""
+
     datetime_at = datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')
     while True:
         data = await reader.readline()
@@ -24,11 +29,13 @@ async def save_messages_history(message:str)->NoReturn:
         await history_file.write(message)
 
 
-def main():
+async def main():
     ip = 'minechat.dvmn.org'
     port = 5000
-    asyncio.run(read_chat(ip, port))
+    reader, writer = await connection_chat(ip, port)
+
+    await read_chat(reader)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
