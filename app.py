@@ -4,6 +4,8 @@ from typing import NoReturn
 
 import aiofiles
 
+from cli import CLI
+
 
 async def connection_chat(ip: str, port: int):
     """Установка соединения с чатом"""
@@ -30,10 +32,10 @@ async def save_messages_history(message:str)->NoReturn:
 
 
 async def main():
-    ip = 'minechat.dvmn.org'
-    port = 5000
-    reader, writer = await connection_chat(ip, port)
+    cli = CLI()
+    args = cli.parser.parse_args()
 
+    reader, writer = await connection_chat(args.host, args.port)
     await read_chat(reader)
 
 
