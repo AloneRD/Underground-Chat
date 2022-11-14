@@ -5,12 +5,7 @@ from typing import NoReturn
 import aiofiles
 
 from cli import CLI
-
-
-async def connection_chat(ip: str, port: int):
-    """Установка соединения с чатом"""
-    reader, writer = await asyncio.open_connection(ip, port)
-    return (reader, writer)
+from connect import connection_chat
 
 
 async def read_chat(reader) -> NoReturn:
@@ -24,7 +19,7 @@ async def read_chat(reader) -> NoReturn:
         await save_messages_history(message)
 
 
-async def save_messages_history(message:str)->NoReturn:
+async def save_messages_history(message: str) -> NoReturn:
     """Записывает сообщения в файл"""
 
     async with aiofiles.open('messages_history.log', 'a') as history_file:
