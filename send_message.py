@@ -64,7 +64,7 @@ async def main():
     
     reader, writer = await connection_chat(args.host, args.port)
 
-    if user_token is not None:
+    if user_token:
         await authentication(reader, writer, user_token)
     elif user_name:
         await register_new_user(reader, writer, user_name)
