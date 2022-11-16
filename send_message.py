@@ -1,6 +1,7 @@
 import asyncio
+import json
 import logging
-import logging.config
+import logging.config 
 from typing import NoReturn
 
 from cli import CLI
@@ -17,7 +18,10 @@ async def authentication(reader:asyncio.StreamReader, writer:asyncio.StreamWrite
     writer.write(f'{user_token}\n'.encode())
     await writer.drain()
     data = await reader.readline()
-    print(f"Welcome to chat! \n{data.decode()}")
+    response = json.loads(data.decode())
+    if response is None:
+        raise ConnectionError('Неизвестный токен. Проверьте его или зарегистрируйтесь заново.')
+    print(f"Welcome to chat! \n{response}")
     return data.decode()
     
 
@@ -30,7 +34,6 @@ async def send_message(writer:asyncio.StreamWriter, reader:asyncio.StreamReader)
         logger.info("Hello")
         writer.write(f'{message}\n\n'.encode())
         await writer.drain()
-
         data = await reader.readline()
         print(data.decode())
 
