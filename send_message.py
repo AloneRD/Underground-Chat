@@ -1,7 +1,7 @@
 import asyncio
 import json
 import logging
-import logging.config 
+import logging.config
 from typing import NoReturn
 
 import aiofiles
@@ -13,9 +13,9 @@ logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
 logger = logging.getLogger('sender')
 
 
-async def authentication(reader:asyncio.StreamReader, writer:asyncio.StreamWriter, user_token:str) -> str:
+async def authentication(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, user_token: str) -> str:
     """Аутентификация пользователя по токену"""
-    
+
     await reader.readline()
     writer.write(f'{user_token}\n'.encode())
     await writer.drain()
@@ -27,7 +27,7 @@ async def authentication(reader:asyncio.StreamReader, writer:asyncio.StreamWrite
     return data.decode()
 
 
-async def register_new_user(reader:asyncio.StreamReader, writer:asyncio.StreamWriter, username:str) -> NoReturn:
+async def register_new_user(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, username: str) -> NoReturn:
     """Регистрация нового пользователя"""
 
     await reader.readline()
@@ -41,7 +41,7 @@ async def register_new_user(reader:asyncio.StreamReader, writer:asyncio.StreamWr
         await token_file.write(data.decode())
 
 
-async def send_message(writer:asyncio.StreamWriter, reader:asyncio.StreamReader)-> NoReturn:
+async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReader) -> NoReturn:
     """Отправка нового сообщения"""
 
     await reader.readline()
@@ -58,10 +58,9 @@ async def main():
     cli = CLI()
     args = cli.parser.parse_args()
 
-    
     user_token = args.token
     user_name = args.username
-    
+
     reader, writer = await connection_chat(args.host, args.port)
 
     if user_token:
@@ -70,8 +69,8 @@ async def main():
         await register_new_user(reader, writer, user_name)
     else:
         raise SystemExit("Неверные параметры")
-    await send_message(writer,reader)
-    
+    await send_message(writer, reader)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
