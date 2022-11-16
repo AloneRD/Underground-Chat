@@ -4,6 +4,8 @@ import logging
 import logging.config 
 from typing import NoReturn
 
+import aiofiles
+
 from cli import CLI
 from connect import connection_chat
 
@@ -23,7 +25,21 @@ async def authentication(reader:asyncio.StreamReader, writer:asyncio.StreamWrite
         raise ConnectionError('Неизвестный токен. Проверьте его или зарегистрируйтесь заново.')
     print(f"Welcome to chat! \n{response}")
     return data.decode()
-    
+
+
+async def register_new_user(reader:asyncio.StreamReader, writer:asyncio.StreamWriter, username:str) -> NoReturn:
+    """Регистрация нового пользователя"""
+
+    await reader.readline()
+    writer.write('\n'.encode())
+    await writer.drain()
+    await reader.readline()
+    writer.write(f'{username}\n'.encode())
+    await writer.drain()
+    data = await reader.readline()
+    async with aiofiles.open(f'{username}.token', 'w') as token_file:
+        await token_file.write(data.decode())
+
 
 async def send_message(writer:asyncio.StreamWriter, reader:asyncio.StreamReader)-> NoReturn:
     """Отправка нового сообщения"""
@@ -42,11 +58,18 @@ async def main():
     cli = CLI()
     args = cli.parser.parse_args()
 
+    
     user_token = args.token
+    user_name = args.username
+    
     reader, writer = await connection_chat(args.host, args.port)
 
     if user_token is not None:
         await authentication(reader, writer, user_token)
+    elif user_name:
+        await register_new_user(reader, writer, user_name)
+    else:
+        raise SystemExit("Неверные параметры")
     await send_message(writer,reader)
     
 

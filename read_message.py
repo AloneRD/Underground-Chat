@@ -9,7 +9,6 @@ import aiofiles
 from cli import CLI
 from connect import connection_chat
 
-
 logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
 logger = logging.getLogger('sender')
 

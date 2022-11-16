@@ -10,6 +10,8 @@ class CLI():
             description='Underground chat'
         )
 
-        self.parser.add_argument('--host', help="Chat Ip address")
-        self.parser.add_argument('--port', help="Chat port")
+        self.parser.add_argument('--host', required=True, help="Chat Ip address")
+        self.parser.add_argument('--port', required=True, help="Chat port")
+
+        self.parser.add_argument('--username', help="Registrational of new user")
         self.parser.add_argument('--token', help="User token")
