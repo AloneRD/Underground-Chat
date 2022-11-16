@@ -1,4 +1,6 @@
 import asyncio
+import logging
+import logging.config
 from datetime import datetime
 from typing import NoReturn
 
@@ -6,6 +8,10 @@ import aiofiles
 
 from cli import CLI
 from connect import connection_chat
+
+
+logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
+logger = logging.getLogger('sender')
 
 
 async def read_chat(reader) -> NoReturn:
@@ -16,6 +22,7 @@ async def read_chat(reader) -> NoReturn:
         data = await reader.readline()
         message = f'[{datetime_at}] {data.decode()}'
         print(message)
+        logger.info("Hello")
         await save_messages_history(message)
 
 

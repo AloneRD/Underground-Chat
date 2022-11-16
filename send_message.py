@@ -1,8 +1,13 @@
 import asyncio
+import logging
+import logging.config
 from typing import NoReturn
 
 from cli import CLI
 from connect import connection_chat
+
+logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
+logger = logging.getLogger('sender')
 
 
 async def authentication(reader:asyncio.StreamReader, writer:asyncio.StreamWriter, user_token:str) -> str:
@@ -22,6 +27,7 @@ async def send_message(writer:asyncio.StreamWriter, reader:asyncio.StreamReader)
     await reader.readline()
     while True:
         message = input('Enter your message: ')
+        logger.info("Hello")
         writer.write(f'{message}\n\n'.encode())
         await writer.drain()
 
