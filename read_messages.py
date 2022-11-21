@@ -7,9 +7,8 @@ from typing import NoReturn
 import aiofiles
 
 from cli import CLI
-from connect import connection_chat
+from connect import connect_to_chat
 
-logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
 logger = logging.getLogger('sender')
 
 
@@ -21,7 +20,6 @@ async def read_chat(reader) -> NoReturn:
         data = await reader.readline()
         message = f'[{datetime_at}] {data.decode()}'
         print(message)
-        logger.info("Hello")
         await save_messages_history(message)
 
 
@@ -33,10 +31,11 @@ async def save_messages_history(message: str) -> NoReturn:
 
 
 async def main():
+    logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
     cli = CLI()
     args = cli.parser.parse_args()
 
-    reader, writer = await connection_chat(args.host, args.port)
+    reader, writer = await connect_to_chat(args.host, args.port)
     await read_chat(reader)
 
 

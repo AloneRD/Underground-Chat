@@ -7,9 +7,8 @@ from typing import NoReturn
 import aiofiles
 
 from cli import CLI
-from connect import connection_chat
+from connect import connect_to_chat
 
-logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
 logger = logging.getLogger('sender')
 
 
@@ -41,12 +40,11 @@ async def register_new_user(reader: asyncio.StreamReader, writer: asyncio.Stream
         await token_file.write(data.decode())
 
 
-async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReader) -> NoReturn:
+async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReader, message: str) -> NoReturn:
     """Отправка нового сообщения"""
 
     await reader.readline()
     while True:
-        message = input('Enter your message: ')
         logger.info("Hello")
         writer.write(f'{message}\n\n'.encode())
         await writer.drain()
@@ -55,13 +53,15 @@ async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReade
 
 
 async def main():
+    logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
     cli = CLI()
     args = cli.parser.parse_args()
 
     user_token = args.token
     user_name = args.username
 
-    reader, writer = await connection_chat(args.host, args.port)
+    reader, writer = await connect_to_chat(args.host, args.port)
+    message = input('Enter your message: ')
 
     if user_token:
         await authentication(reader, writer, user_token)
@@ -69,7 +69,7 @@ async def main():
         await register_new_user(reader, writer, user_name)
     else:
         raise SystemExit("Неверные параметры")
-    await send_message(writer, reader)
+    await send_message(writer, reader, message)
 
 
 if __name__ == "__main__":
