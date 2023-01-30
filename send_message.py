@@ -44,12 +44,11 @@ async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReade
     """Отправка нового сообщения"""
 
     await reader.readline()
-    while True:
-        logger.info("Hello")
-        writer.write(f'{message}\n\n'.encode())
-        await writer.drain()
-        data = await reader.readline()
-        print(data.decode())
+    logger.info("Hello")
+    writer.write(f'{message}\n\n'.encode())
+    await writer.drain()
+    data = await reader.readline()
+    print(data.decode())
 
 
 async def main():
@@ -60,16 +59,19 @@ async def main():
     user_token = args.token
     user_name = args.username
 
-    reader, writer = await connect_to_chat(args.host, args.port)
-    message = input('Enter your message: ')
+    while True:
+        async with connect_to_chat(args.host, args.port) as conn:
+            reader, writer = conn
 
-    if user_token:
-        await authentication(reader, writer, user_token)
-    elif user_name:
-        await register_new_user(reader, writer, user_name)
-    else:
-        raise SystemExit("Неверные параметры")
-    await send_message(writer, reader, message)
+
+            if user_token:
+                await authentication(reader, writer, user_token)
+            elif user_name:
+                await register_new_user(reader, writer, user_name)
+            else:
+                raise SystemExit("Неверные параметры")
+            message = input('Enter your message: ')
+            await send_message(writer, reader, message)
 
 
 if __name__ == "__main__":
