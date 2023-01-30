@@ -15,19 +15,13 @@ logger = logging.getLogger('sender')
 async def read_chat(reader) -> NoReturn:
     """Чтения переписки чата"""
 
-    datetime_at = datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')
-    while True:
-        data = await reader.readline()
-        message = f'[{datetime_at}] {data.decode()}'
-        print(message)
-        await save_messages_history(message)
-
-
-async def save_messages_history(message: str) -> NoReturn:
-    """Записывает сообщения в файл"""
-
-    async with aiofiles.open('messages_history.log', 'a') as history_file:
-        await history_file.write(message)
+    async with aiofiles.open('messages_history.log', 'a', encoding='utf-8') as history_file:
+        datetime_at = datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')
+        while True:
+            data = await reader.readline()
+            message = f'[{datetime_at}] {data.decode()}'
+            print(message)
+            await history_file.write(message)
 
 
 async def main():
