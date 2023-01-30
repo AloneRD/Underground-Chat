@@ -30,11 +30,9 @@ async def register_new_user(reader: asyncio.StreamReader, writer: asyncio.Stream
     """Регистрация нового пользователя"""
 
     await reader.readline()
-    writer.write('\n'.encode())
-    await writer.drain()
+    await write_messages(writer, '\n')
     await reader.readline()
-    writer.write(f'{username}\n'.encode())
-    await writer.drain()
+    await write_messages(writer, f'{username}\n')
     data = await reader.readline()
     async with aiofiles.open(f'{username}.token', 'w') as token_file:
         await token_file.write(data.decode())
@@ -45,11 +43,16 @@ async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReade
 
     await reader.readline()
     logger.info("Hello")
-    writer.write(f'{message}\n\n'.encode())
-    await writer.drain()
+    await write_messages(writer, f'{message}\n\n')
     data = await reader.readline()
     print(data.decode())
 
+
+async def write_messages(writer: asyncio.StreamWriter, message: str) -> None:
+    """Запись сообщения в сокет"""
+    
+    writer.write(message.encode())
+    await writer.drain()
 
 async def main():
     logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
