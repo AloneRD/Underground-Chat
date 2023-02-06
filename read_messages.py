@@ -29,8 +29,7 @@ async def main():
     cli = CLI()
     args = cli.parser.parse_args()
 
-    async with connect_to_chat(args.host, args.port) as conn:
-        reader, writer = conn
+    async with connect_to_chat(args.host, args.port) as (reader, writer):
         await read_chat(reader)
 
 

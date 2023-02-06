@@ -12,21 +12,30 @@ from connect import connect_to_chat
 logger = logging.getLogger('sender')
 
 
-async def authentication(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, user_token: str) -> str:
+async def authentication(
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter,
+    user_token: str
+) -> str:
     """Аутентификация пользователя по токену"""
 
     await reader.readline()
-    writer.write(f'{user_token}\n'.encode())
-    await writer.drain()
+    await write_messages(writer, f'{user_token}\n')
     data = await reader.readline()
     response = json.loads(data.decode())
     if response is None:
-        raise ConnectionError('Неизвестный токен. Проверьте его или зарегистрируйтесь заново.')
+        raise ConnectionError(
+            'Неизвестный токен. Проверьте его или зарегистрируйтесь заново.'
+            )
     print(f"Welcome to chat! \n{response}")
     return data.decode()
 
 
-async def register_new_user(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, username: str) -> NoReturn:
+async def register_new_user(
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter,
+    username: str
+) -> NoReturn:
     """Регистрация нового пользователя"""
 
     await reader.readline()
@@ -38,7 +47,11 @@ async def register_new_user(reader: asyncio.StreamReader, writer: asyncio.Stream
         await token_file.write(data.decode())
 
 
-async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReader, message: str) -> NoReturn:
+async def send_message(
+    writer: asyncio.StreamWriter,
+    reader: asyncio.StreamReader,
+    message: str
+) -> NoReturn:
     """Отправка нового сообщения"""
 
     await reader.readline()
@@ -50,12 +63,16 @@ async def send_message(writer: asyncio.StreamWriter, reader: asyncio.StreamReade
 
 async def write_messages(writer: asyncio.StreamWriter, message: str) -> None:
     """Запись сообщения в сокет"""
-    
+
     writer.write(message.encode())
     await writer.drain()
 
+
 async def main():
-    logging.config.fileConfig(fname='logging.ini', disable_existing_loggers=False)
+    logging.config.fileConfig(
+        fname='logging.ini',
+        disable_existing_loggers=False
+        )
     cli = CLI()
     args = cli.parser.parse_args()
 
@@ -63,9 +80,7 @@ async def main():
     user_name = args.username
 
     while True:
-        async with connect_to_chat(args.host, args.port) as conn:
-            reader, writer = conn
-
+        async with connect_to_chat(args.host, args.port) as (reader, writer):
 
             if user_token:
                 await authentication(reader, writer, user_token)
